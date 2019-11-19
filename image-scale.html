@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+  <meta charset="UTF-8">
+  <title>图片缩放</title>
+  <script>
+    const scale = (file, maxWidth, maxHeight) => {
+      return new Promise((resolve) => {
+        const objectURL = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(objectURL);
+
+          //计算保持比例缩放后的大小
+          let targetWidth = image.width;
+          let targetHeight = image.height;
+          if (targetWidth > maxWidth) {
+            const rate = maxWidth / targetWidth;
+            targetWidth = maxWidth;
+            targetHeight = parseInt(rate * targetHeight);
+          }
+          if (targetHeight > maxHeight) {
+            const rate = maxHeight / targetHeight;
+            targetHeight = maxHeight;
+            targetWidth = parseInt(rate * targetWidth);
+          }
+
+          //进行缩放
+          const canvas = document.createElement('canvas');
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+          canvas.style = 'display: none;';
+          document.body.appendChild(canvas);
+          const canvasContext = canvas.getContext('2d');
+          canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+          //返回图片
+          canvas.toBlob((blob) => {
+            resolve([
+              new File([blob], file.name, {type: file.type}),
+              canvas.toDataURL(file.type)
+            ]);
+          }, file.type, 0.8);
+
+          // //图片的Base64字符的下载
+          // // https://gist.github.com/makevoid/1659616#file-img_resize-js-L53
+          // const stream = canvas.toDataURL(file.type)
+          //     .replace(file.type, 'image/octet-stream');
+          // const a = document.createElement('a');
+          // a.href = stream;
+          // a.download = file.name;
+          // a.click();
+        };
+        image.src = objectURL;
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputWidth = document.querySelector('[name="width"]');
+      const inputHeight = document.querySelector('[name="height"]');
+      const previewUi = document.querySelector('#preview');
+      document.querySelector('#inputFile')
+          .addEventListener('change', async evt => {
+            const file = evt.currentTarget.files[0];
+            console.info('缩放图片:', file);
+
+            const [scaleFile, scaleBase64] = await scale(file, inputWidth.value, inputHeight.value);
+            console.info('缩放完毕:', scaleFile);
+
+            previewUi.innerHTML = `<img src="${scaleBase64}" >`;
+          });
+    });
+  </script>
+</head>
+<body>
+<h1>图片缩放</h1>
+<h2>使用canvas, 速度很快, 质量较差.</h2>
+<p>
+  宽度: <input name="width" type="number" step="1" value="320">
+</p>
+<p>
+  高度: <input name="height" type="number" step="1" value="240">
+</p>
+<p>
+  文件: <input id="inputFile" type="file" accept=".png,.jpg">
+</p>
+<p id="preview"></p>
+</body>
+</html>
