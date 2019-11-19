@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+  <meta charset="UTF-8">
+  <title>SHA256</title>
+  <script>
+    const sha256 = (content) => {
+      const hash = async (buffer) => {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+        return Array.from(
+            new Uint8Array(hashBuffer)
+        )
+            .map(
+                b => b.toString(16).padStart(2, '0')
+            )
+            .join('');
+      };
+
+      return new Promise((resolve) => {
+        if (content instanceof Blob) {
+          //文件
+          const fileReader = new FileReader();
+          fileReader.addEventListener('load', async evt => {
+            resolve(
+                hash(evt.currentTarget.result)
+            );
+          });
+          fileReader.readAsArrayBuffer(content);
+        } else {
+          //其它
+          const buffer = new TextEncoder()
+              .encode(content);
+          resolve(
+              hash(buffer)
+          );
+        }
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const hashUi = document.querySelector('#hash');
+      document.querySelector('#inputFile')
+          .addEventListener('change', async evt => {
+            const file = evt.currentTarget.files[0];
+            console.info('计算文件SHA256:', file);
+            const hash = await sha256(file);
+            console.info('文件SHA256:', hash);
+
+            hashUi.textContent = hash;
+          });
+      document.querySelector('#inputText')
+          .addEventListener('input', async evt => {
+            const text = evt.currentTarget.value;
+            console.info('计算文本SHA256:', text);
+            const hash = await sha256(text);
+            console.info('文本SHA256:', hash);
+
+            hashUi.textContent = hash;
+          });
+    });
+  </script>
+</head>
+<body>
+<h1>SHA256</h1>
+<h2>https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest</h2>
+<p>
+  哈希: <code id="hash" style="background-color: black; color: white; padding: 0.5rem;">选择文件或输入文字即可计算</code>
+</p>
+<p>
+  文件: <input id="inputFile" type="file">
+</p>
+<p>
+  文字: <input id="inputText">
+</p>
+</body>
+</html>
