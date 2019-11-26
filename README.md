@@ -11,6 +11,10 @@ https://jsfiddle.net/LiXiaoming/xda6grhm/
 
 # WebVTT
 
-## 字幕区域大小位置
+## 设置大小位置
 
 https://jsfiddle.net/LiXiaoming/4dv31brq/
+
+## 字幕时间戳转秒数(VTTCue时间值)的相互转换
+
+https://jsfiddle.net/LiXiaoming/rfnwvu73/
