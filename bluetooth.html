@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="cn">
+
+<head>
+  <meta charset="UTF-8">
+  <title>连接蓝牙</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.querySelector('#connect')
+        .addEventListener('click', () => {
+          // //没有作用
+          // navigator.bluetooth.getDevices()
+          //   .then(devices => {
+          //     devices.forEach(device => {
+          //       console.debug(device);
+          //     });
+          //   });
+
+          //好像什么也干不了
+          navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: ['battery_service']
+          })
+            .then(device => {
+              console.debug(device);
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        });
+
+      document.body.querySelector('#disconnect')
+        .addEventListener('click', async () => {
+          //
+        });
+    });
+  </script>
+</head>
+
+<body>
+
+  <p>
+    <button id="connect">连接</button>
+    <button id="disconnect">断开</button>
+  </p>
+
+</body>
+
+</html>

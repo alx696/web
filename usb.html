@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="cn">
+
+<head>
+  <meta charset="UTF-8">
+  <title>连接USB</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let usbDevice;
+
+      document.body.querySelector('#connect')
+        .addEventListener('click', () => {
+          navigator.usb.getDevices()
+            .then(devices => {
+              devices.forEach(device => {
+                console.debug(device);
+              });
+            });
+
+          navigator.usb.requestDevice({
+            filters: [
+              {
+                vendorId: 1256
+              }
+            ]
+          })
+            .then(device => {
+              console.debug(device);
+              usbDevice = device;
+              return usbDevice.open();
+            })
+            .then(() => {
+              usbDevice.selectConfiguration(1);
+            })
+            .then(() => {
+              console.debug('已经连接');
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        });
+
+      document.body.querySelector('#disconnect')
+        .addEventListener('click', async () => {
+          usbDevice.close()
+            .then(() => {
+              console.debug('已经断开');
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        });
+    });
+  </script>
+</head>
+
+<body>
+
+  <p>
+    <button id="connect">连接</button>
+    <button id="disconnect">断开</button>
+  </p>
+
+</body>
+
+</html>
