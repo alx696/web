@@ -2,6 +2,8 @@
 
 * [计算SHA256](sha256.html)
 * [缩放图片](image-scale.html)
+* [显示连接的USB设备](usb.html)
+* [显示连接的蓝牙设备](bluetooth.html)
 
 # 方法
 
