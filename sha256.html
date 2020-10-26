@@ -5,36 +5,39 @@
   <title>SHA256</title>
   <script>
     const sha256 = (content) => {
-      const hash = async (buffer) => {
-        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-        return Array.from(
-            new Uint8Array(hashBuffer)
-        )
-            .map(
-                b => b.toString(16).padStart(2, '0')
-            )
-            .join('');
-      };
+        return new Promise((resolve, reject) => {
+            const hash = (buf) => {
+                crypto.subtle.digest(
+                    'SHA-256',
+                    buf
+                )
+                    .then((result) => {
+                        const hash = Array.from(
+                            new Uint8Array(result)
+                        )
+                            .map(
+                                b => b.toString(16).padStart(2, '0')
+                            )
+                            .join('');
+                        resolve(hash);
+                    })
+                    .catch(reject);
+            };
 
-      return new Promise((resolve) => {
-        if (content instanceof Blob) {
-          //文件
-          const fileReader = new FileReader();
-          fileReader.addEventListener('load', async evt => {
-            resolve(
-                hash(evt.currentTarget.result)
-            );
-          });
-          fileReader.readAsArrayBuffer(content);
-        } else {
-          //其它
-          const buffer = new TextEncoder()
-              .encode(content);
-          resolve(
-              hash(buffer)
-          );
-        }
-      });
+            if (content instanceof Blob) {
+                //文件
+                const fileReader = new FileReader();
+                fileReader.addEventListener('load', (e) => {
+                    hash(e.currentTarget.result);
+                });
+                fileReader.readAsArrayBuffer(content);
+            } else {
+                //其它
+                const buffer = new TextEncoder()
+                    .encode(content);
+                hash(buffer);
+            }
+        });
     };
 
     document.addEventListener('DOMContentLoaded', () => {
